@@ -1,3 +1,7 @@
+#include "headers.h"
+
+using namespace std;
+
 int round(float d){
      return floor(d + 0.5);
 }
@@ -78,58 +82,11 @@ std::vector<Point> lineDDA(Point start, Point end){
 }
 
 std::vector<Point> lineBres(Point start,Point end){
-    int x0 = start.get_x(), y0 = start.get_y(), xEnd = end.get_x(), yEnd = end.get_y();
-    int dx = fabs(xEnd - x0), dy = fabs(yEnd - y0);
-    float m = dy/dx;
-
-    // int p = 2 * dy - dx;
-   // int twoDy = 2 * dy;
-   // int twoDyMinusDx = 2 * (dy - dx);
-   // int x, y;
-
-   // if (x0 > xEnd) {
-     //   x = xEnd;
-       // y = yEnd;
-       // xEnd = x0;
-   // }
-   // else {
-     //   x = x0;
-       // y = y0;
-   // }
-   //
-   //
-   std::vector<Point> line;
-  // line.push_back(start);
-
-   float n = m - 1;
-   for(int i = x0; i < xEnd; i++){
-       line.push_back(Point(i,y0));
-       if(n >= 0){
-           y0 += 1;
-           n -= 1.0;
-       }
-       else{
-           i += 1;
-           n += m;
-       }
-   }
-      // while (x < xEnd) {
-     //   x++;
-       // if (p < 0){
-         //   p += twoDy;
-       // }
-       // else {
-         //   y++;
-          //  p += twoDyMinusDx;
-        //}
-       // line.push_back(Point(x, y));
-   // }
-
 }
 
-void Point::draw(Attribute A) {
+void drawPoint(Attribute A, Point p) {
     //draw a point
-    int firstIndex = getIndex(x, y, A);
+    int firstIndex = getIndex(p.get_x(), p.get_y(), A);
     if (firstIndex == -1) {
         cout << "Error! Given point index is out of range";
         
@@ -158,91 +115,6 @@ void drawLine(Attribute A, Point start, Point end, string method) {
     }
     for (int i = 0; i < line.size(); i++){
         Point p = line[i];
-        p.draw(A);
+        drawPoint(A, p);
     }
-}
-
-//float *PixelBuffer;
-void display();
-void readInput();
-int nPolygon;
-Polygon **polygons;
-int width = 500;
-int height = 500;
-Attribute A = Attribute(width, height);
-int main(int argc, char *argv[])
-{
-	readInput();
-	//allocate new pixel buffer, need initialization!!
-	//PixelBuffer = new float[width * height * 3];
-
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE);
-	//set window size to 200*200
-	glutInitWindowSize(A.get_width(), A.get_height());
-	//set window position
-	glutInitWindowPosition(100, 100);
-
-	//create and set main window title
-	int MainWindow = glutCreateWindow("Hello Graphics!!");
-	glClearColor(0, 0, 0, 0); //clears the buffer of OpenGL
-	//sets display function
-	glutDisplayFunc(display);
-
-	glutMainLoop();//main display loop, will display until terminate
-
-    for (int i = 0; i < nPolygon; i++) {
-        delete polygons[i];
-    }
-    delete[] polygons;
-
-	return 0;
-}
-
-void readInput() { 
-    int nPolygon;
-    polygons = new Polygon*[nPolygon];
-    cin >> nPolygon;
-    for (int i = 0; i < nPolygon; i++) {
-        int nPoint;
-        cin >> nPoint;
-        polygons[i] = new Polygon(nPoint);
-        for (int j = 0; j < nPoint; j++) {
-            float x, y;
-            cin >> x >> y;
-            polygons[i] -> setPoint(j, x, y);
-        }
-    }
-}
-
-//main display loop, this function will be called again and again by OpenGL
-void display()
-{
-	//Misc.
-	glClear(GL_COLOR_BUFFER_BIT);
-	glLoadIdentity();
-   
-    Point p1(0,0);
-    Point p2(499,499);
-    //p2.draw(A);
-    Point p3(0,250), p4(250,250), p5(250, 0);
-    drawLine(A, p1, p2, "DDA");
-    drawLine(A, p3, p4, "DDA");
-    cout<< "print horizonta line" <<endl;
-    drawLine(A, p3, p5, "DDA");
-    cout << "print m = -1 line" << endl;
-    drawLine(A, p5, p4, "DDA");
-    cout << "print vertical line" << endl;
-    drawLine(A, p4, p5, "DDA");
-   
-	//draws pixel on screen, width and height must match pixel buffer dimension
-	glDrawPixels(A.get_width(), A.get_height(), GL_RGB, GL_FLOAT,A.get_buffer());
-
-	// draw polygons
-	for (int i = 0; i < nPolygon; i++) {
-		polygons[i] -> draw();
-	}
-
-	//window refresh
-	glFlush();
 }

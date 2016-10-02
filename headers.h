@@ -1,3 +1,5 @@
+#pragma once
+
 #ifdef __APPLE__
 #  include <OpenGL/gl.h>
 #  include <OpenGL/glu.h>
@@ -14,4 +16,5 @@
 #include <iostream>
 #include <string>
 
-using namespace std;
+#include "data.h"
+#include "graphics.h"
