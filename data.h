@@ -33,12 +33,28 @@ class Point {
 
 class Polygon {
     private:
+        string id;
         int nPoint;
         Point **points;
     public:
-        Polygon(int nPoint);
+        Polygon(int nPoint, string _id);
         ~Polygon();
+        string get_id() const {return id;}
+        int get_n() const {return nPoint;}
+        Point** get_array() const {return points;}
         void setPoint(int index, float x, float y);
+        pair<int, int> findMaxAndMinY();
+        friend ostream &operator<<( ostream &output, const Polygon &P ){
+            Point** array = P.get_array();
+            int Pn = P.get_n();
+            output << P.get_id() << ": "  <<endl;
+            for (int i = 0; i < P.get_n(); i++){
+                output << " "<< *array[i];
+            }
+            output << endl;
+            return output;
+        }
+
 };
 
 int getIndex(int x, int y, Attribute A);

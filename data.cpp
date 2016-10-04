@@ -14,8 +14,10 @@ Point::Point(float _x, float _y) {
     y = _y;
 }
 
-Polygon::Polygon(int nPoint) {
+Polygon::Polygon(int _nPoint, string _id) {
     //Polygon class constructor
+    nPoint = _nPoint;
+    id = _id;
     this -> points = new Point*[nPoint];
 }
 
@@ -30,3 +32,22 @@ Polygon::~Polygon() {
 void Polygon::setPoint(int index, float x, float y) {
     this -> points[index] = new Point(x, y);
 }
+
+pair<int, int> Polygon::findMaxAndMinY(){
+    int max = 0;
+    int min = 0;
+    for (int i = 0; i < nPoint; i++){
+        Point* p = points[i];
+        int y = p -> get_y();
+        if (y > max){
+            max = y;
+        }
+        if (y < min){
+            min = y;
+        }
+    }
+    return make_pair(max, min);
+
+
+}
+

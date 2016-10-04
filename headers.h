@@ -15,6 +15,7 @@
 #include <math.h>
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "data.h"
 #include "graphics.h"

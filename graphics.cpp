@@ -32,56 +32,144 @@ std::vector<Point> lineSpecial(Point start, Point end){
         }
     }
     else{
-        int m = dy/dx;//no need for float because m is either -1 or 1
-        int s = dx/xStep;//need to know the direction to go(from left to right or vice verse) as well
+        int yIncrement = dy/yStep;//no need for float because m is either -1 or 1
+        //cout << "m is "<< m <<endl;
+        int xIncrement = dx/xStep;//need to know the direction to go(from left to right or vice verse) as well
+        //cout << "s is " << s << endl;
         for(int i = 0; i <= xStep; i ++){
-            line.push_back(Point(x0 + i*s, y0 + i*m));
+           // cout << "("<< x0 + i*s << ", " << y0 + i*m << "), ";
+            line.push_back(Point(x0 + i*xIncrement, y0 + i*yIncrement));
         }
     }
-    cout << line.front() << endl;
-    cout << line.back() <<endl;
+    //cout << line.front() << endl;
+    //cout << line.back() <<endl;
     return line;
 }
 
 std::vector<Point> lineDDA(Point start, Point end){
-   
+    //cout << "draw line from " << start << " to "<< end <<endl;
     int dy = end.get_y() - start.get_y(), dx = end.get_x() - start.get_x();
     int x0 = start.get_x(), y0 = start.get_y();
-    int xStep = abs(dx);
-    int yStep = abs(dy);
+    int xStep = fabs(dx);
+    int yStep = fabs(dy);
     if ((xStep == yStep) || (dy == 0) || (dx == 0)){
         //special cases: m=1/-1, horizontal line or vertical line
-        cout << "Go to special cases" << endl;
+       // cout << "Go to special cases" << endl;
         return lineSpecial(start, end);
     }
     std::vector<Point> line;
-   
-    if (dy < dx){
+    
+    int xIncrement = dx/xStep; 
+    int yIncrement = dy/yStep;
+    if (yStep < xStep){
         //the slop is gentle, so march through xi 
         //0< m < 1 or 0 > m > -1
-        float m = dy/dx;
-        
+        if (dx < 0){
+            return lineDDA(end, start);
+        }
+        float m = (float)dy/ (float)dx;
+       // cout << " m is "<< m << endl;
         for(int i = 0; i <= xStep; i++){
-            float yExact = x0 + i * m;
+            float yExact = (float)y0 + (float)i * m;
             int y = round(yExact);
-            line.push_back(Point(x0 + i, y));
+            line.push_back(Point(x0 + i*xIncrement, y));
         }
         return line;
     }
     else{
         //the only case left here is when m > 1 or m < -1
         //so we march through yi instead
-        float m = dx/dy;
+        if (dy < 0){
+            return lineDDA(end, start);
+        }
+        float m = (float)dx/ (float)dy;
+       // cout << " m is "<< m << endl;
         for(int i = 0; i <= yStep; i++){
-            float xExact = y0 + i*m;
+            float xExact = (float)x0 + (float)i * m;
             int x = round(xExact);
-            line.push_back(Point(x, y0 + i));
+            //cout << "( " << x << ", " << y0+i << ");  ";
+            line.push_back(Point(x, y0 + i*yIncrement));
         }
         return line;
     }
 }
 
 std::vector<Point> lineBres(Point start,Point end){
+    int dy = end.get_y() - start.get_y(), dx = end.get_x() - start.get_x();
+    int x0 = start.get_x(), y0 = start.get_y();
+    int xStep = fabs(dx);
+    int yStep = fabs(dy);
+    if ((xStep == yStep) || (dy == 0) || (dx == 0)){
+        //special cases: m=1/-1, horizontal line or vertical line
+        cout << "Go to special cases" << endl;
+        return lineSpecial(start, end);
+    }
+    std::vector<Point> line;
+    line.push_back(start);
+
+    float m = (float)dy/ (float)dx; 
+    if (yStep <  xStep){
+        //the slop is gentle, so march through xi 
+        //0< m < 1 or 0 > m > -1
+        if (x0 > end.get_x()){
+          //if the line starts from right to left
+          return lineBres(end, start);
+        }
+        int pi = 2*dy - dx;
+		int y = y0;
+		//y is y(i+1) and y0 is y(i)
+		for (int i = 1; i < xStep; i++){
+            if (pi >= 0 && m > 0){
+			    y += 1;
+				//start from y0 but iterate through yEnd
+			}
+            else if (pi <= 0 && m < 0){
+                y -= 1;
+            }
+           // cout << "pi is " << pi << ", (" << x0 + i << ", "<< y << ")"<< endl;
+            line.push_back(Point(x0 + i, y));
+		    //prepare for the next iteration
+           // cout << pi;
+		    pi = pi + 2*dy - 2*dx*(y - y0);
+           // cout << " + 2*" << dy << "-2*" << dx << "*( " << y << " - " << y0 << ") = " << pi <<endl;  
+            //pi is now p(i+1)
+			y0 = y;
+			//y0 is now y(i+1)
+		}
+	}
+	else {
+        //the only case left here is when m > 1 or m < -1
+        //so we march through yi instead
+        
+        if (y0 >  end.get_y()){
+          //if the line starts from right to left
+            return lineBres(end, start);
+        }
+        int pi = 2*dx - dy;
+		int x = x0;
+		//x is x(i+1) and x0 is x(i)
+		for (int i = 1; i < yStep; i++){
+		    if (pi >= 0 && m > 0){
+			    x += 1;
+				//start from x0 but iterate through xEnd
+			}
+            else if (pi <= 0 && m < 0){
+                x -= 1;
+            }
+            //cout << "pi is " << pi << ", (" << x << ", "<< y0 + i << ")"<< endl;
+            line.push_back(Point(x, y0 + i));
+		    //prepare for the next iteration
+            //cout << pi;   
+		 	pi = pi + 2*dx - 2*dy*(x - x0);
+            //cout << " + 2*" << dx << "-2*" << dy << "*( " << x << " - " << x0 << ") = " << pi <<endl;  
+            //pi is now p(i+1)
+            x0 = x;
+			//x0 is now x(i+1)
+		}
+    }
+    line.push_back(end);
+	return line;				
+    
 }
 
 void drawPoint(Attribute A, Point p) {
@@ -106,7 +194,7 @@ void drawLine(Attribute A, Point start, Point end, string method) {
     if ( method == "DDA"){
         line = lineDDA(start, end);
     }
-    else if (method == "Breshem"){
+    else if (method == "Bres"){
         line = lineBres(start, end);
     }
     else {
@@ -117,4 +205,65 @@ void drawLine(Attribute A, Point start, Point end, string method) {
         Point p = line[i];
         drawPoint(A, p);
     }
+}
+
+void drawPolygon(Attribute A, Polygon p) {
+   //cout << "Draw polygon" << endl;
+   Point** pArray = p.get_array();
+   int nPoint = p.get_n();
+   int i = 0;
+   for (int j = 1; j < nPoint; j++){
+       //cout << i << " " << j << endl;
+       Point start = *pArray[i];
+       Point end = *pArray[j];
+       //cout << start << end;  
+       drawLine(A, start, end, "DDA");
+       i++;
+   }
+   drawLine(A, *pArray[i], *pArray[0], "DDA");
+}
+
+void drawAllPolygons(Attribute A, Polygon** PolygonsFile, int nPolygons){
+     for(int i = 0; i < nPolygons; i++){
+        Polygon* p = PolygonsFile[i];
+        drawPolygon(A, *p);
+    }
+}
+
+int getIndex(int x, int y, Attribute A) {
+    //function to calculate the corresbonding place of a point in PixelBuffer
+    if ((x<0) || (y<0) || (x>A.get_width()) || (y>A.get_height())){
+        return -1;
+    }
+    else {
+        int h = y*A.get_width()*3;
+        int w = x*3;
+        return h+w;
+    }
+}
+
+pair<Polygon**, int>  readInput() {
+    int nPolygon;
+    cin >> nPolygon; 
+    Polygon** polygons = new Polygon*[nPolygon];
+    for (int i = 0; i < nPolygon; i++) {
+        int nPoint;
+        cin >> nPoint;
+        std::stringstream ss;
+        ss << i;
+        std::string str;
+        ss >> str;
+        str = "Polygon " + str;
+       // std::string name = to_string(i);
+        polygons[i] = new Polygon(nPoint, str);
+        for (int j = 0; j < nPoint; j++) {
+            float x, y;
+            cin >> x >> y;
+            polygons[i] -> setPoint(j, x, y);
+        }
+        cout << *polygons[i] <<endl;
+        //drawPolygon(A, *polygons[i]);
+    }
+
+    return make_pair(polygons, nPolygon);
 }
