@@ -2,59 +2,49 @@
 
 using namespace std;
 
-int round(float d){
-     return floor(d + 0.5);
-}
-
-std::vector<Point> lineSpecial(Point start, Point end){
-//deal with sepcial cases such as line with m=0, m=1 and m=infinite
-    //int dy = end.get_y() - start.get_y(), dx = end.get_x() - start.get_x();
-    int x0= start.get_x(), xEnd = end.get_x(), y0 = start.get_y(), yEnd = end.get_y();
+// lineSpecial deal with sepcial cases such as line with m=0, m=1 and m=infinite
+std::vector<Point> lineSpecial(const Point &start, const Point &end) {
+    int x0 = start.get_x(), xEnd = end.get_x(), y0 = start.get_y(), yEnd = end.get_y();
     int dy = yEnd - y0, dx = xEnd - x0;
     int yStep = abs(dy), xStep = abs(dx);
     std::vector<Point> line;
     if (dy == 0){
-    //when it's a horizontal line
+		//when it's a horizontal line
         int s = dx/xStep;
-        for(int i = 0; i <= xStep; i ++){
+        for(int i = 0; i <= xStep; i++){
             //deal with both cases that dx > 0 and dx < 0
             int x = x0 + i*s;
             line.push_back(Point(x, y0));
         }
     }
     else if (dx == 0){
-    //when it's a horizontal line
+		//when it's a horizontal line
         int s = dy/yStep;
-        for(int i = 0; i <= yStep; i ++ ){
+        for(int i = 0; i <= yStep; i++ ){
             //deal with both cases that dy > 0 and dy < 0
             int y = y0 + i*s;
             line.push_back(Point(x0, y));
         }
     }
     else{
-        int yIncrement = dy/yStep;//no need for float because m is either -1 or 1
-        //cout << "m is "<< m <<endl;
-        int xIncrement = dx/xStep;//need to know the direction to go(from left to right or vice verse) as well
-        //cout << "s is " << s << endl;
-        for(int i = 0; i <= xStep; i ++){
-           // cout << "("<< x0 + i*s << ", " << y0 + i*m << "), ";
+		//no need for float because m is either -1 or 1
+        int yIncrement = dy/yStep;
+		//need to know the direction to go(from left to right or vice verse) as well
+        int xIncrement = dx/xStep;
+        for(int i = 0; i <= xStep; i++){
             line.push_back(Point(x0 + i*xIncrement, y0 + i*yIncrement));
         }
     }
-    //cout << line.front() << endl;
-    //cout << line.back() <<endl;
     return line;
 }
 
-std::vector<Point> lineDDA(Point start, Point end){
-    //cout << "draw line from " << start << " to "<< end <<endl;
+std::vector<Point> lineDDA(const Point &start, const Point &end){
     int dy = end.get_y() - start.get_y(), dx = end.get_x() - start.get_x();
     int x0 = start.get_x(), y0 = start.get_y();
     int xStep = fabs(dx);
     int yStep = fabs(dy);
     if ((xStep == yStep) || (dy == 0) || (dx == 0)){
-        //special cases: m=1/-1, horizontal line or vertical line
-       // cout << "Go to special cases" << endl;
+        // special cases: m=1/-1, horizontal line or vertical line
         return lineSpecial(start, end);
     }
     std::vector<Point> line;
@@ -68,7 +58,6 @@ std::vector<Point> lineDDA(Point start, Point end){
             return lineDDA(end, start);
         }
         float m = (float)dy/ (float)dx;
-       // cout << " m is "<< m << endl;
         for(int i = 0; i <= xStep; i++){
             float yExact = (float)y0 + (float)i * m;
             int y = round(yExact);
@@ -83,18 +72,16 @@ std::vector<Point> lineDDA(Point start, Point end){
             return lineDDA(end, start);
         }
         float m = (float)dx/ (float)dy;
-       // cout << " m is "<< m << endl;
         for(int i = 0; i <= yStep; i++){
             float xExact = (float)x0 + (float)i * m;
             int x = round(xExact);
-            //cout << "( " << x << ", " << y0+i << ");  ";
             line.push_back(Point(x, y0 + i*yIncrement));
         }
         return line;
     }
 }
 
-std::vector<Point> lineBres(Point start,Point end){
+std::vector<Point> lineBres(const Point &start, const Point &end){
     int dy = end.get_y() - start.get_y(), dx = end.get_x() - start.get_x();
     int x0 = start.get_x(), y0 = start.get_y();
     int xStep = fabs(dx);
@@ -107,7 +94,7 @@ std::vector<Point> lineBres(Point start,Point end){
     std::vector<Point> line;
     line.push_back(start);
 
-    float m = (float)dy/ (float)dx; 
+    float m = (float)dy/(float)dx; 
     if (yStep <  xStep){
         //the slop is gentle, so march through xi 
         //0< m < 1 or 0 > m > -1
@@ -115,7 +102,7 @@ std::vector<Point> lineBres(Point start,Point end){
           //if the line starts from right to left
           return lineBres(end, start);
         }
-        int pi = 2*dy - dx;
+        int pi = 2*dy-dx;
 		int y = y0;
 		//y is y(i+1) and y0 is y(i)
 		for (int i = 1; i < xStep; i++){
@@ -126,12 +113,9 @@ std::vector<Point> lineBres(Point start,Point end){
             else if (pi <= 0 && m < 0){
                 y -= 1;
             }
-           // cout << "pi is " << pi << ", (" << x0 + i << ", "<< y << ")"<< endl;
             line.push_back(Point(x0 + i, y));
 		    //prepare for the next iteration
-           // cout << pi;
-		    pi = pi + 2*dy - 2*dx*(y - y0);
-           // cout << " + 2*" << dy << "-2*" << dx << "*( " << y << " - " << y0 << ") = " << pi <<endl;  
+		    pi = pi+2*dy-2*dx*(y-y0);
             //pi is now p(i+1)
 			y0 = y;
 			//y0 is now y(i+1)
@@ -140,9 +124,8 @@ std::vector<Point> lineBres(Point start,Point end){
 	else {
         //the only case left here is when m > 1 or m < -1
         //so we march through yi instead
-        
         if (y0 >  end.get_y()){
-          //if the line starts from right to left
+			//if the line starts from right to left
             return lineBres(end, start);
         }
         int pi = 2*dx - dy;
@@ -156,12 +139,9 @@ std::vector<Point> lineBres(Point start,Point end){
             else if (pi <= 0 && m < 0){
                 x -= 1;
             }
-            //cout << "pi is " << pi << ", (" << x << ", "<< y0 + i << ")"<< endl;
             line.push_back(Point(x, y0 + i));
 		    //prepare for the next iteration
-            //cout << pi;   
 		 	pi = pi + 2*dx - 2*dy*(x - x0);
-            //cout << " + 2*" << dx << "-2*" << dy << "*( " << x << " - " << x0 << ") = " << pi <<endl;  
             //pi is now p(i+1)
             x0 = x;
 			//x0 is now x(i+1)
@@ -169,7 +149,6 @@ std::vector<Point> lineBres(Point start,Point end){
     }
     line.push_back(end);
 	return line;				
-    
 }
 
 void drawPoint(const Attribute &attribute, const Point &p) {

@@ -1,14 +1,10 @@
 #include "headers.h"
 
-//using namespace std;
+std::vector<Point> lineSpecial(const Point &start, const Point &end);
 
-int round(float d);
+std::vector<Point> lineDDA(const Point &start, const Point &end);
 
-std::vector<Point> lineSpecial(Point start, Point end);
-
-std::vector<Point> lineDDA(Point start, Point end);
-
-std::vector<Point> lineBres(Point start,Point end);
+std::vector<Point> lineBres(const Point &start, const Point &end);
 
 void drawPoint(const Attribute &attribute, const Point &p);
 
