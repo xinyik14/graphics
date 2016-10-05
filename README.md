@@ -1,7 +1,8 @@
-# to run the program
-
+# to compile 
 make
-./project1 < input
-make clean
 
-# input file is the file with data of polygons 
+# to run
+```
+./project1 < input
+```
+input file is the file with data of polygons 
