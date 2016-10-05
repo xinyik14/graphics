@@ -4,17 +4,17 @@ using namespace std;
 
 class Attribute {
     private:
-        int _width;
-        int _height;
-        float* PixelBuffer;
+        int width;
+        int height;
+        float* pixelBuffer;
     public:
-        Attribute(int width, int height);
-        //      ~Attribute();
-    float* get_buffer(){return PixelBuffer;}
-    int get_width(){return _width;}
-    int get_height(){return _height;}
-    void set_width(int w){_width = w;}
-    void set_height(int h){_height = h;}
+        Attribute(int _width, int _height);
+        ~Attribute();
+    float* get_buffer() const {return pixelBuffer;}
+    int get_width() const {return width;}
+    int get_height() const {return height;}
+    void set_width(int w){width = w;}
+    void set_height(int h){height = h;}
 };
 
 class Point {
@@ -43,12 +43,12 @@ class Polygon {
         int get_n() const {return nPoint;}
         Point** get_array() const {return points;}
         void setPoint(int index, float x, float y);
-        pair<int, int> findMaxAndMinY();
-        friend ostream &operator<<( ostream &output, const Polygon &P ){
-            Point** array = P.get_array();
-            int Pn = P.get_n();
-            output << P.get_id() << ": "  <<endl;
-            for (int i = 0; i < P.get_n(); i++){
+        void findMaxAndMinY(int &max, int &min);
+        friend ostream &operator<<(ostream &output, const Polygon &p ){
+            Point** array = p.get_array();
+            int n = p.get_n();
+            output << p.get_id() << ": "  <<endl;
+            for (int i = 0; i < n; i++){
                 output << " "<< *array[i];
             }
             output << endl;
@@ -56,5 +56,3 @@ class Polygon {
         }
 
 };
-
-int getIndex(int x, int y, Attribute A);

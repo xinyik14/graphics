@@ -1,13 +1,16 @@
 #include "headers.h"
 
-Attribute::Attribute(int width, int height) {
+Attribute::Attribute(int _width, int _height) {
     //Attribute class constructor
-    _width = width;
-    _height = height;
-    PixelBuffer = new float[_width*_height*3];
+    width = _width;
+    height = _height;
+    pixelBuffer = new float[width*height*3];
 }
 
-//Attribute::~Attribute() {delete[] PixelBuffer;}
+Attribute::~Attribute() {
+    delete[] pixelBuffer;
+}
+
 Point::Point(float _x, float _y) {
     //Point class constructor
     x = _x;
@@ -18,7 +21,7 @@ Polygon::Polygon(int _nPoint, string _id) {
     //Polygon class constructor
     nPoint = _nPoint;
     id = _id;
-    this -> points = new Point*[nPoint];
+    points = new Point*[nPoint];
 }
 
 Polygon::~Polygon() {
@@ -30,12 +33,11 @@ Polygon::~Polygon() {
 }
 
 void Polygon::setPoint(int index, float x, float y) {
-    this -> points[index] = new Point(x, y);
+    points[index] = new Point(x, y);
 }
 
-pair<int, int> Polygon::findMaxAndMinY(){
-    int max = 0;
-    int min = 0;
+void Polygon::findMaxAndMinY(int &max, int &min){
+    max = 0, min = 0;
     for (int i = 0; i < nPoint; i++){
         Point* p = points[i];
         int y = p -> get_y();
@@ -46,8 +48,5 @@ pair<int, int> Polygon::findMaxAndMinY(){
             min = y;
         }
     }
-    return make_pair(max, min);
-
-
 }
 

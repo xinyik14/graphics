@@ -172,26 +172,25 @@ std::vector<Point> lineBres(Point start,Point end){
     
 }
 
-void drawPoint(Attribute A, Point p) {
+void drawPoint(const Attribute &attribute, const Point &p) {
     //draw a point
-    int firstIndex = getIndex(p.get_x(), p.get_y(), A);
+    int firstIndex = getIndex(p.get_x(), p.get_y(), attribute);
     if (firstIndex == -1) {
         cout << "Error! Given point index is out of range";
         
     }
     else {
-        float* PixelBuffer = A.get_buffer();
+        float* PixelBuffer = attribute.get_buffer();
         //change the values for this point stored in PixelBuffer
         for (int i = 0; i < 3; i++){//one pixel has three values to change
             PixelBuffer[firstIndex + i] = 1;
         }
-
     }
 }
 
-void drawLine(Attribute A, Point start, Point end, string method) {
+void drawLine(const Attribute &attribute, const Point &start, const Point &end, string method) {
     vector<Point> line;
-    if ( method == "DDA"){
+    if (method == "DDA"){
         line = lineDDA(start, end);
     }
     else if (method == "Bres"){
@@ -203,67 +202,39 @@ void drawLine(Attribute A, Point start, Point end, string method) {
     }
     for (int i = 0; i < line.size(); i++){
         Point p = line[i];
-        drawPoint(A, p);
+        drawPoint(attribute, p);
     }
 }
 
-void drawPolygon(Attribute A, Polygon p) {
-   //cout << "Draw polygon" << endl;
-   Point** pArray = p.get_array();
-   int nPoint = p.get_n();
-   int i = 0;
-   for (int j = 1; j < nPoint; j++){
-       //cout << i << " " << j << endl;
-       Point start = *pArray[i];
-       Point end = *pArray[j];
-       //cout << start << end;  
-       drawLine(A, start, end, "DDA");
-       i++;
-   }
-   drawLine(A, *pArray[i], *pArray[0], "DDA");
+void drawPolygon(const Attribute &attribute, const Polygon &p) {
+    Point** pArray = p.get_array();
+    int nPoint = p.get_n();
+    int i = 0;
+    for (int j = 1; j < nPoint; j++) {
+        //cout << i << " " << j << endl;
+        Point start = *pArray[i];
+        Point end = *pArray[j];
+        //cout << start << end;  
+        drawLine(attribute, start, end, "DDA");
+        i++;
+    }
+    drawLine(attribute, *pArray[i], *pArray[0], "DDA");
 }
 
-void drawAllPolygons(Attribute A, Polygon** PolygonsFile, int nPolygons){
-     for(int i = 0; i < nPolygons; i++){
-        Polygon* p = PolygonsFile[i];
-        drawPolygon(A, *p);
+void drawAllPolygons(const Attribute &attribute, Polygon** polygonsFile, int nPolygons) {
+    for(int i = 0; i < nPolygons; i++) {
+        drawPolygon(attribute, *polygonsFile[i]);
     }
 }
 
-int getIndex(int x, int y, Attribute A) {
+int getIndex(int x, int y, const Attribute &attribute) {
     //function to calculate the corresbonding place of a point in PixelBuffer
-    if ((x<0) || (y<0) || (x>A.get_width()) || (y>A.get_height())){
+    if ((x<0) || (y<0) || (x>attribute.get_width()) || (y>attribute.get_height())){
         return -1;
     }
     else {
-        int h = y*A.get_width()*3;
+        int h = y*attribute.get_width()*3;
         int w = x*3;
         return h+w;
     }
-}
-
-pair<Polygon**, int>  readInput() {
-    int nPolygon;
-    cin >> nPolygon; 
-    Polygon** polygons = new Polygon*[nPolygon];
-    for (int i = 0; i < nPolygon; i++) {
-        int nPoint;
-        cin >> nPoint;
-        std::stringstream ss;
-        ss << i;
-        std::string str;
-        ss >> str;
-        str = "Polygon " + str;
-       // std::string name = to_string(i);
-        polygons[i] = new Polygon(nPoint, str);
-        for (int j = 0; j < nPoint; j++) {
-            float x, y;
-            cin >> x >> y;
-            polygons[i] -> setPoint(j, x, y);
-        }
-        cout << *polygons[i] <<endl;
-        //drawPolygon(A, *polygons[i]);
-    }
-
-    return make_pair(polygons, nPolygon);
 }
